@@ -23,6 +23,7 @@
 ### Task 1: Project tooling foundation
 
 **Files:**
+
 - Modify: `package.json`
 - Create: `tsconfig.json`
 - Create: `eslint.config.js`
@@ -33,6 +34,7 @@
 - Create: `src/sanity.test.ts` (temporary, deleted in Step 6)
 
 **Interfaces:**
+
 - Produces: working `npm run typecheck | lint | test | build` on an otherwise empty project; ESM + strict TS baseline every later task depends on.
 
 - [ ] **Step 1: Rewrite `package.json`**
@@ -116,6 +118,7 @@ Then install: `npm install`. Pin `@google/genai` to the latest published version
 - [ ] **Step 3: Create `eslint.config.js`, `.prettierrc.json`, `vitest.config.ts`**
 
 `eslint.config.js`:
+
 ```js
 import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
@@ -140,14 +143,17 @@ export default [
   },
 ];
 ```
+
 Add `@eslint/js` to devDependencies during install if ESLint flat config requires it.
 
 `.prettierrc.json`:
+
 ```json
 { "singleQuote": true, "semi": true, "printWidth": 100, "trailingComma": "all" }
 ```
 
 `vitest.config.ts`:
+
 ```ts
 import { defineConfig } from 'vitest/config';
 
@@ -161,6 +167,7 @@ export default defineConfig({
 `LICENSE`: standard MIT text, `Copyright (c) 2026 Yash Kavaiya`.
 
 Append to `.gitignore`:
+
 ```
 coverage/
 *.tsbuildinfo
@@ -169,10 +176,13 @@ coverage/
 - [ ] **Step 5: Add a sanity test to prove the toolchain runs**
 
 `src/sanity.test.ts`:
+
 ```ts
 import { describe, it, expect } from 'vitest';
 describe('toolchain', () => {
-  it('runs vitest', () => { expect(1 + 1).toBe(2); });
+  it('runs vitest', () => {
+    expect(1 + 1).toBe(2);
+  });
 });
 ```
 
@@ -194,10 +204,12 @@ git commit -m "chore: set up TypeScript/ESM toolchain, lint, format, vitest, MIT
 ### Task 2: Config module (`src/config.ts`)
 
 **Files:**
+
 - Create: `src/config.ts`
 - Create: `src/config.test.ts`
 
 **Interfaces:**
+
 - Produces: `export interface Config { slack: {botToken,appToken,signingSecret}; gemini: {apiKey,model}; briefing: {channel?: string; cron: string; topics: string[]}; mcpServers: McpServerConfig[]; logLevel: string; healthPort: number }`
 - Produces: `export function loadConfig(env: NodeJS.ProcessEnv): Config` (throws `ConfigError` on invalid input)
 - Produces: `export interface McpServerConfig { name: string; command: string; args: string[] }`
@@ -301,12 +313,18 @@ export function loadConfig(env: NodeJS.ProcessEnv): Config {
   }
 
   return {
-    slack: { botToken: e.SLACK_BOT_TOKEN, appToken: e.SLACK_APP_TOKEN, signingSecret: e.SLACK_SIGNING_SECRET },
+    slack: {
+      botToken: e.SLACK_BOT_TOKEN,
+      appToken: e.SLACK_APP_TOKEN,
+      signingSecret: e.SLACK_SIGNING_SECRET,
+    },
     gemini: { apiKey: e.GEMINI_API_KEY, model: e.GEMINI_MODEL },
     briefing: {
       channel: e.BRIEFING_CHANNEL,
       cron: e.BRIEFING_CRON,
-      topics: e.BRIEFING_TOPICS.split(',').map((t) => t.trim()).filter(Boolean),
+      topics: e.BRIEFING_TOPICS.split(',')
+        .map((t) => t.trim())
+        .filter(Boolean),
     },
     mcpServers,
     logLevel: e.LOG_LEVEL,
@@ -324,10 +342,12 @@ export function loadConfig(env: NodeJS.ProcessEnv): Config {
 ### Task 3: Logger (`src/logger.ts`)
 
 **Files:**
+
 - Create: `src/logger.ts`
 - Create: `src/logger.test.ts`
 
 **Interfaces:**
+
 - Produces: `export function createLogger(level: string): Logger` (pino `Logger` type re-exported as `export type { Logger } from 'pino'`)
 
 - [ ] **Step 1: Write the failing test** — `src/logger.test.ts`
@@ -357,7 +377,14 @@ export function createLogger(level: string): pino.Logger {
   return pino({
     level,
     redact: {
-      paths: ['*.token', '*.botToken', '*.appToken', '*.apiKey', '*.signingSecret', 'headers.authorization'],
+      paths: [
+        '*.token',
+        '*.botToken',
+        '*.appToken',
+        '*.apiKey',
+        '*.signingSecret',
+        'headers.authorization',
+      ],
       censor: '[REDACTED]',
     },
   });
@@ -373,14 +400,26 @@ export function createLogger(level: string): pino.Logger {
 ### Task 4: Agent types (`src/agent/types.ts`)
 
 **Files:**
+
 - Create: `src/agent/types.ts`
 
 **Interfaces:**
+
 - Produces:
+
 ```ts
-export interface Citation { title: string; uri: string }
-export interface ChatMessage { role: 'user' | 'model'; text: string }
-export interface AgentResponse { text: string; citations: Citation[] }
+export interface Citation {
+  title: string;
+  uri: string;
+}
+export interface ChatMessage {
+  role: 'user' | 'model';
+  text: string;
+}
+export interface AgentResponse {
+  text: string;
+  citations: Citation[];
+}
 export interface AgentTool {
   name: string;
   description: string;
@@ -400,10 +439,12 @@ export interface AgentTool {
 ### Task 5: Gemini agent (`src/agent/gemini.ts`)
 
 **Files:**
+
 - Create: `src/agent/gemini.ts`
 - Create: `src/agent/gemini.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Config['gemini']`, `Logger`, `ChatMessage`, `AgentTool`, `AgentResponse`, `Citation`.
 - Produces: `export class GeminiAgent { constructor(cfg, logger, deps?); ask(history: ChatMessage[], tools?: AgentTool[]): Promise<AgentResponse> }`
 - Produces: `export interface GeminiDeps { client: GeminiClient }` and `export interface GeminiClient { generateContent(req): Promise<GeminiResult> }` so tests inject a fake client instead of hitting the network.
@@ -433,7 +474,11 @@ describe('GeminiAgent.ask', () => {
         text: 'Paris is the capital of France.',
         functionCalls: [],
         candidates: [
-          { groundingMetadata: { groundingChunks: [{ web: { title: 'France', uri: 'https://x' } }] } },
+          {
+            groundingMetadata: {
+              groundingChunks: [{ web: { title: 'France', uri: 'https://x' } }],
+            },
+          },
         ],
       },
     ]);
@@ -463,7 +508,12 @@ describe('GeminiAgent.ask', () => {
   it('stops after max iterations to avoid infinite tool loops', async () => {
     const looping = { text: '', functionCalls: [{ name: 'x', args: {} }], candidates: [] };
     const client = clientReturning(Array(10).fill(looping));
-    const tool = { name: 'x', description: 'x', parameters: { type: 'object' }, call: vi.fn(async () => 'ok') };
+    const tool = {
+      name: 'x',
+      description: 'x',
+      parameters: { type: 'object' },
+      call: vi.fn(async () => 'ok'),
+    };
     const agent = new GeminiAgent(cfg, log, { client });
     const res = await agent.ask([{ role: 'user', text: 'loop' }], [tool]);
     expect(res.text).toMatch(/couldn.t complete|unable/i);
@@ -485,7 +535,9 @@ const MAX_TOOL_ITERATIONS = 5;
 export interface GeminiResult {
   text: string;
   functionCalls: { name: string; args: Record<string, unknown> }[];
-  candidates: { groundingMetadata?: { groundingChunks?: { web?: { title?: string; uri?: string } }[] } }[];
+  candidates: {
+    groundingMetadata?: { groundingChunks?: { web?: { title?: string; uri?: string } }[] };
+  }[];
 }
 
 export interface GeminiClient {
@@ -503,14 +555,19 @@ export function createRealClient(apiKey: string): GeminiClient {
       const r = await ai.models.generateContent(req as never);
       return {
         text: r.text ?? '',
-        functionCalls: (r.functionCalls ?? []).map((f) => ({ name: f.name ?? '', args: (f.args ?? {}) as Record<string, unknown> })),
+        functionCalls: (r.functionCalls ?? []).map((f) => ({
+          name: f.name ?? '',
+          args: (f.args ?? {}) as Record<string, unknown>,
+        })),
         candidates: (r.candidates ?? []) as GeminiResult['candidates'],
       };
     },
   };
 }
 
-export interface GeminiDeps { client: GeminiClient }
+export interface GeminiDeps {
+  client: GeminiClient;
+}
 
 export class GeminiAgent {
   private readonly client: GeminiClient;
@@ -529,7 +586,11 @@ export class GeminiAgent {
     const toolConfig: Record<string, unknown>[] = [{ googleSearch: {} }];
     if (tools.length > 0) {
       toolConfig.push({
-        functionDeclarations: tools.map((t) => ({ name: t.name, description: t.description, parameters: t.parameters })),
+        functionDeclarations: tools.map((t) => ({
+          name: t.name,
+          description: t.description,
+          parameters: t.parameters,
+        })),
       });
     }
 
@@ -543,17 +604,29 @@ export class GeminiAgent {
       this.collectCitations(result, citations);
 
       if (result.functionCalls.length > 0 && toolMap.size > 0) {
-        contents.push({ role: 'model', parts: result.functionCalls.map((fc) => ({ functionCall: fc })) });
+        contents.push({
+          role: 'model',
+          parts: result.functionCalls.map((fc) => ({ functionCall: fc })),
+        });
         for (const fc of result.functionCalls) {
           const tool = toolMap.get(fc.name);
           const output = tool ? await this.safeCall(tool, fc.args) : `Unknown tool: ${fc.name}`;
-          contents.push({ role: 'user', parts: [{ functionResponse: { name: fc.name, response: { result: output } } }] });
+          contents.push({
+            role: 'user',
+            parts: [{ functionResponse: { name: fc.name, response: { result: output } } }],
+          });
         }
         continue;
       }
-      return { text: result.text || 'I could not produce an answer.', citations: dedupe(citations) };
+      return {
+        text: result.text || 'I could not produce an answer.',
+        citations: dedupe(citations),
+      };
     }
-    return { text: "I couldn't complete this request — too many tool steps. Please rephrase.", citations: dedupe(citations) };
+    return {
+      text: "I couldn't complete this request — too many tool steps. Please rephrase.",
+      citations: dedupe(citations),
+    };
   }
 
   private async safeCall(tool: AgentTool, args: Record<string, unknown>): Promise<string> {
@@ -568,7 +641,8 @@ export class GeminiAgent {
   private collectCitations(result: GeminiResult, into: Citation[]): void {
     for (const c of result.candidates) {
       for (const chunk of c.groundingMetadata?.groundingChunks ?? []) {
-        if (chunk.web?.uri) into.push({ title: chunk.web.title ?? chunk.web.uri, uri: chunk.web.uri });
+        if (chunk.web?.uri)
+          into.push({ title: chunk.web.title ?? chunk.web.uri, uri: chunk.web.uri });
       }
     }
   }
@@ -589,10 +663,12 @@ function dedupe(citations: Citation[]): Citation[] {
 ### Task 6: MCP client (`src/mcp/client.ts`)
 
 **Files:**
+
 - Create: `src/mcp/client.ts`
 - Create: `src/mcp/client.test.ts`
 
 **Interfaces:**
+
 - Consumes: `McpServerConfig`, `Logger`, `AgentTool`.
 - Produces: `export class McpClientManager { constructor(servers: McpServerConfig[], logger: Logger, deps?: McpClientDeps); connectAll(): Promise<void>; tools(): AgentTool[]; close(): Promise<void> }`
 - Produces: `export interface McpConnection { listTools(): Promise<{name:string;description?:string;inputSchema:Record<string,unknown>}[]>; callTool(name:string,args:Record<string,unknown>): Promise<string>; close(): Promise<void> }` and `export interface McpClientDeps { connect(cfg: McpServerConfig): Promise<McpConnection> }`
@@ -620,7 +696,9 @@ function fakeConn(tools: any[]): McpConnection {
 describe('McpClientManager', () => {
   it('exposes external tools as AgentTools', async () => {
     const conn = fakeConn([{ name: 'echo', description: 'echo', inputSchema: { type: 'object' } }]);
-    const mgr = new McpClientManager([{ name: 's', command: 'x', args: [] }], log, { connect: async () => conn });
+    const mgr = new McpClientManager([{ name: 's', command: 'x', args: [] }], log, {
+      connect: async () => conn,
+    });
     await mgr.connectAll();
     const tools = mgr.tools();
     expect(tools).toHaveLength(1);
@@ -630,7 +708,9 @@ describe('McpClientManager', () => {
 
   it('skips servers that fail to connect', async () => {
     const mgr = new McpClientManager([{ name: 'bad', command: 'x', args: [] }], log, {
-      connect: async () => { throw new Error('boom'); },
+      connect: async () => {
+        throw new Error('boom');
+      },
     });
     await mgr.connectAll();
     expect(mgr.tools()).toHaveLength(0);
@@ -650,12 +730,16 @@ import type { Logger } from '../logger.js';
 import type { AgentTool } from '../agent/types.js';
 
 export interface McpConnection {
-  listTools(): Promise<{ name: string; description?: string; inputSchema: Record<string, unknown> }[]>;
+  listTools(): Promise<
+    { name: string; description?: string; inputSchema: Record<string, unknown> }[]
+  >;
   callTool(name: string, args: Record<string, unknown>): Promise<string>;
   close(): Promise<void>;
 }
 
-export interface McpClientDeps { connect(cfg: McpServerConfig): Promise<McpConnection> }
+export interface McpClientDeps {
+  connect(cfg: McpServerConfig): Promise<McpConnection>;
+}
 
 export function createRealConnect(): McpClientDeps['connect'] {
   return async (cfg) => {
@@ -665,14 +749,25 @@ export function createRealConnect(): McpClientDeps['connect'] {
     return {
       async listTools() {
         const r = await client.listTools();
-        return r.tools.map((t) => ({ name: t.name, description: t.description, inputSchema: (t.inputSchema ?? { type: 'object' }) as Record<string, unknown> }));
+        return r.tools.map((t) => ({
+          name: t.name,
+          description: t.description,
+          inputSchema: (t.inputSchema ?? { type: 'object' }) as Record<string, unknown>,
+        }));
       },
       async callTool(name, args) {
         const r = await client.callTool({ name, arguments: args });
         const content = (r.content ?? []) as { type: string; text?: string }[];
-        return content.filter((c) => c.type === 'text').map((c) => c.text ?? '').join('\n') || JSON.stringify(r);
+        return (
+          content
+            .filter((c) => c.type === 'text')
+            .map((c) => c.text ?? '')
+            .join('\n') || JSON.stringify(r)
+        );
       },
-      async close() { await client.close(); },
+      async close() {
+        await client.close();
+      },
     };
   };
 }
@@ -706,12 +801,17 @@ export class McpClientManager {
         }
         this.logger.info({ server: srv.name, tools: tools.length }, 'connected to MCP server');
       } catch (err) {
-        this.logger.warn({ server: srv.name, err: (err as Error).message }, 'MCP server unavailable — skipping');
+        this.logger.warn(
+          { server: srv.name, err: (err as Error).message },
+          'MCP server unavailable — skipping',
+        );
       }
     }
   }
 
-  tools(): AgentTool[] { return this.agentTools; }
+  tools(): AgentTool[] {
+    return this.agentTools;
+  }
 
   async close(): Promise<void> {
     await Promise.allSettled(this.connections.map((c) => c.close()));
@@ -728,10 +828,12 @@ export class McpClientManager {
 ### Task 7: Slack thread memory (`src/slack/thread.ts`)
 
 **Files:**
+
 - Create: `src/slack/thread.ts`
 - Create: `src/slack/thread.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ChatMessage`.
 - Produces: `export function messagesToHistory(messages: SlackMsg[], botUserId: string): ChatMessage[]` where `export interface SlackMsg { user?: string; bot_id?: string; text?: string; ts?: string }`. Bot's own messages map to role `model`; everyone else to `user`. Empty-text messages are dropped. `@mention` of the bot is stripped from text.
 
@@ -768,7 +870,12 @@ describe('messagesToHistory', () => {
 ```ts
 import type { ChatMessage } from '../agent/types.js';
 
-export interface SlackMsg { user?: string; bot_id?: string; text?: string; ts?: string }
+export interface SlackMsg {
+  user?: string;
+  bot_id?: string;
+  text?: string;
+  ts?: string;
+}
 
 export function messagesToHistory(messages: SlackMsg[], botUserId: string): ChatMessage[] {
   const out: ChatMessage[] = [];
@@ -795,10 +902,12 @@ function stripMention(text: string, botUserId: string): string {
 ### Task 8: Slack Block Kit formatting (`src/slack/format.ts`)
 
 **Files:**
+
 - Create: `src/slack/format.ts`
 - Create: `src/slack/format.test.ts`
 
 **Interfaces:**
+
 - Consumes: `AgentResponse`, `Citation`.
 - Produces: `export function formatAnswer(res: AgentResponse): { text: string; blocks: unknown[] }` and `export function formatBriefing(topics: string[], res: AgentResponse): { text: string; blocks: unknown[] }`. Citations render as a numbered "Sources" context block; answers truncate to Slack's section limit (~2900 chars) safely.
 
@@ -865,7 +974,10 @@ export function formatAnswer(res: AgentResponse): { text: string; blocks: unknow
   };
 }
 
-export function formatBriefing(topics: string[], res: AgentResponse): { text: string; blocks: unknown[] } {
+export function formatBriefing(
+  topics: string[],
+  res: AgentResponse,
+): { text: string; blocks: unknown[] } {
   return {
     text: `Daily Briefing: ${res.text}`,
     blocks: [
@@ -887,10 +999,12 @@ export function formatBriefing(topics: string[], res: AgentResponse): { text: st
 ### Task 9: Briefing builder (`src/briefing/briefing.ts`)
 
 **Files:**
+
 - Create: `src/briefing/briefing.ts`
 - Create: `src/briefing/briefing.test.ts`
 
 **Interfaces:**
+
 - Consumes: `GeminiAgent` (only its `ask` method — typed as `Pick<GeminiAgent, 'ask'>`), `AgentResponse`.
 - Produces: `export async function buildBriefing(agent: Pick<GeminiAgent,'ask'>, topics: string[]): Promise<AgentResponse>`
 
@@ -920,7 +1034,10 @@ describe('buildBriefing', () => {
 import type { GeminiAgent } from '../agent/gemini.js';
 import type { AgentResponse } from '../agent/types.js';
 
-export async function buildBriefing(agent: Pick<GeminiAgent, 'ask'>, topics: string[]): Promise<AgentResponse> {
+export async function buildBriefing(
+  agent: Pick<GeminiAgent, 'ask'>,
+  topics: string[],
+): Promise<AgentResponse> {
   const prompt =
     `Produce a concise daily briefing covering these topics: ${topics.join(', ')}. ` +
     `Use current, real information from search. For each topic give 2-3 bullet points with the most ` +
@@ -938,10 +1055,12 @@ export async function buildBriefing(agent: Pick<GeminiAgent, 'ask'>, topics: str
 ### Task 10: Briefing scheduler (`src/briefing/scheduler.ts`)
 
 **Files:**
+
 - Create: `src/briefing/scheduler.ts`
 - Create: `src/briefing/scheduler.test.ts`
 
 **Interfaces:**
+
 - Consumes: `GeminiAgent`, `Logger`, `buildBriefing`, `formatBriefing`, a minimal Slack poster `interface Poster { postMessage(args: { channel: string; text: string; blocks: unknown[] }): Promise<unknown> }`, `node-cron`.
 - Produces: `export class BriefingScheduler { constructor(opts); start(): void; stop(): void; runOnce(): Promise<void> }` where `opts = { cron: string; channel?: string; topics: string[]; agent: Pick<GeminiAgent,'ask'>; poster: Poster; logger: Logger; scheduleFn?: typeof cron.schedule }`.
 
@@ -961,7 +1080,12 @@ describe('BriefingScheduler', () => {
     const postMessage = vi.fn(async () => ({ ok: true }));
     const agent = { ask: vi.fn(async () => ({ text: 'digest', citations: [] })) };
     const sched = new BriefingScheduler({
-      cron: '0 9 * * *', channel: 'C1', topics: ['ai'], agent, poster: { postMessage }, logger: log,
+      cron: '0 9 * * *',
+      channel: 'C1',
+      topics: ['ai'],
+      agent,
+      poster: { postMessage },
+      logger: log,
     });
     await sched.runOnce();
     expect(postMessage).toHaveBeenCalledTimes(1);
@@ -971,7 +1095,13 @@ describe('BriefingScheduler', () => {
   it('runOnce does nothing without a channel', async () => {
     const postMessage = vi.fn(async () => ({}));
     const agent = { ask: vi.fn(async () => ({ text: 'd', citations: [] })) };
-    const sched = new BriefingScheduler({ cron: '0 9 * * *', topics: ['ai'], agent, poster: { postMessage }, logger: log });
+    const sched = new BriefingScheduler({
+      cron: '0 9 * * *',
+      topics: ['ai'],
+      agent,
+      poster: { postMessage },
+      logger: log,
+    });
     await sched.runOnce();
     expect(postMessage).not.toHaveBeenCalled();
   });
@@ -1016,10 +1146,15 @@ export class BriefingScheduler {
     this.task = schedule(this.opts.cron, () => {
       void this.runOnce();
     });
-    this.opts.logger.info({ cron: this.opts.cron, channel: this.opts.channel }, 'briefing scheduled');
+    this.opts.logger.info(
+      { cron: this.opts.cron, channel: this.opts.channel },
+      'briefing scheduled',
+    );
   }
 
-  stop(): void { this.task?.stop(); }
+  stop(): void {
+    this.task?.stop();
+  }
 
   async runOnce(): Promise<void> {
     if (!this.opts.channel) return;
@@ -1044,11 +1179,13 @@ export class BriefingScheduler {
 ### Task 11: Slack app + handlers (`src/slack/app.ts`, `src/slack/handlers/*`)
 
 **Files:**
+
 - Create: `src/slack/handlers/respond.ts` (shared respond helper)
 - Create: `src/slack/handlers/respond.test.ts`
 - Create: `src/slack/app.ts`
 
 **Interfaces:**
+
 - Consumes: `GeminiAgent`, `McpClientManager`, `Logger`, `messagesToHistory`, `formatAnswer`, `@slack/bolt`.
 - Produces: `export async function respondToThread(deps, ctx): Promise<{text:string;blocks:unknown[]}>` — the testable core that fetches thread history, calls the agent, and returns formatted output. `deps = { agent: Pick<GeminiAgent,'ask'>; tools: () => AgentTool[]; fetchThread: (channel,ts) => Promise<SlackMsg[]>; botUserId: string; logger: Logger }`, `ctx = { channel: string; threadTs?: string; text: string; user?: string }`.
 - Produces: `export function createSlackApp(cfg, agent, mcp, logger): App` wiring `app_mention`, `/pulse`, and DM `message` events to `respondToThread` (App from `@slack/bolt`, Socket Mode).
@@ -1067,9 +1204,7 @@ const log = createLogger('silent');
 describe('respondToThread', () => {
   it('builds history from the thread and returns a formatted answer', async () => {
     const agent = { ask: vi.fn(async () => ({ text: 'The answer.', citations: [] })) };
-    const fetchThread = vi.fn(async () => [
-      { user: 'U1', text: '<@UBOT> question?' },
-    ]);
+    const fetchThread = vi.fn(async () => [{ user: 'U1', text: '<@UBOT> question?' }]);
     const out = await respondToThread(
       { agent, tools: () => [], fetchThread, botUserId: 'UBOT', logger: log },
       { channel: 'C1', threadTs: '1.1', text: '<@UBOT> question?', user: 'U1' },
@@ -1110,9 +1245,17 @@ export interface RespondDeps {
   logger: Logger;
 }
 
-export interface RespondCtx { channel: string; threadTs?: string; text: string; user?: string }
+export interface RespondCtx {
+  channel: string;
+  threadTs?: string;
+  text: string;
+  user?: string;
+}
 
-export async function respondToThread(deps: RespondDeps, ctx: RespondCtx): Promise<{ text: string; blocks: unknown[] }> {
+export async function respondToThread(
+  deps: RespondDeps,
+  ctx: RespondCtx,
+): Promise<{ text: string; blocks: unknown[] }> {
   let history;
   if (ctx.threadTs) {
     const msgs = await deps.fetchThread(ctx.channel, ctx.threadTs);
@@ -1141,7 +1284,12 @@ import type { SlackMsg } from './thread.js';
 
 const { App } = bolt;
 
-export function createSlackApp(cfg: Config, agent: GeminiAgent, mcp: McpClientManager, logger: Logger): bolt.App {
+export function createSlackApp(
+  cfg: Config,
+  agent: GeminiAgent,
+  mcp: McpClientManager,
+  logger: Logger,
+): bolt.App {
   const app = new App({
     token: cfg.slack.botToken,
     appToken: cfg.slack.appToken,
@@ -1155,24 +1303,40 @@ export function createSlackApp(cfg: Config, agent: GeminiAgent, mcp: McpClientMa
     const r = await app.client.conversations.replies({ channel, ts: threadTs, limit: 30 });
     return (r.messages ?? []) as SlackMsg[];
   };
-  const deps = (): RespondDeps => ({ agent, tools: () => mcp.tools(), fetchThread, botUserId, logger });
+  const deps = (): RespondDeps => ({
+    agent,
+    tools: () => mcp.tools(),
+    fetchThread,
+    botUserId,
+    logger,
+  });
 
   app.event('app_mention', async ({ event, say }) => {
     try {
       const out = await respondToThread(deps(), {
-        channel: event.channel, threadTs: event.thread_ts ?? event.ts, text: event.text, user: event.user,
+        channel: event.channel,
+        threadTs: event.thread_ts ?? event.ts,
+        text: event.text,
+        user: event.user,
       });
       await say({ ...out, thread_ts: event.thread_ts ?? event.ts });
     } catch (err) {
       logger.error({ err: (err as Error).message }, 'app_mention failed');
-      await say({ text: '⚠️ I hit an error, please try again.', thread_ts: event.thread_ts ?? event.ts });
+      await say({
+        text: '⚠️ I hit an error, please try again.',
+        thread_ts: event.thread_ts ?? event.ts,
+      });
     }
   });
 
   app.command('/pulse', async ({ command, ack, respond }) => {
     await ack();
     try {
-      const out = await respondToThread(deps(), { channel: command.channel_id, text: command.text, user: command.user_id });
+      const out = await respondToThread(deps(), {
+        channel: command.channel_id,
+        text: command.text,
+        user: command.user_id,
+      });
       await respond({ ...out, response_type: 'in_channel' });
     } catch (err) {
       logger.error({ err: (err as Error).message }, '/pulse failed');
@@ -1181,10 +1345,23 @@ export function createSlackApp(cfg: Config, agent: GeminiAgent, mcp: McpClientMa
   });
 
   app.message(async ({ message, say }) => {
-    const m = message as { channel_type?: string; text?: string; user?: string; channel?: string; ts?: string; thread_ts?: string; bot_id?: string };
+    const m = message as {
+      channel_type?: string;
+      text?: string;
+      user?: string;
+      channel?: string;
+      ts?: string;
+      thread_ts?: string;
+      bot_id?: string;
+    };
     if (m.channel_type !== 'im' || m.bot_id || !m.text) return;
     try {
-      const out = await respondToThread(deps(), { channel: m.channel ?? '', threadTs: m.thread_ts, text: m.text, user: m.user });
+      const out = await respondToThread(deps(), {
+        channel: m.channel ?? '',
+        threadTs: m.thread_ts,
+        text: m.text,
+        user: m.user,
+      });
       await say({ ...out, thread_ts: m.thread_ts });
     } catch (err) {
       logger.error({ err: (err as Error).message }, 'DM failed');
@@ -1193,7 +1370,14 @@ export function createSlackApp(cfg: Config, agent: GeminiAgent, mcp: McpClientMa
   });
 
   app.event('app_mention', async () => {}); // placeholder kept minimal
-  void (async () => { try { const auth = await app.client.auth.test(); botUserId = (auth.user_id as string) ?? ''; } catch { /* set on start */ } })();
+  void (async () => {
+    try {
+      const auth = await app.client.auth.test();
+      botUserId = (auth.user_id as string) ?? '';
+    } catch {
+      /* set on start */
+    }
+  })();
 
   return app;
 }
@@ -1210,10 +1394,12 @@ export function createSlackApp(cfg: Config, agent: GeminiAgent, mcp: McpClientMa
 ### Task 12: Health endpoint (`src/health.ts`)
 
 **Files:**
+
 - Create: `src/health.ts`
 - Create: `src/health.test.ts`
 
 **Interfaces:**
+
 - Produces: `export function createHealthServer(port: number, logger: Logger): { start(): Promise<void>; stop(): Promise<void> }` — Node `http` server replying `200 {"status":"ok"}` on `GET /healthz`, `404` otherwise.
 
 - [ ] **Step 1: Write the failing test** — `src/health.test.ts`
@@ -1226,7 +1412,9 @@ import { createLogger } from './logger.js';
 const log = createLogger('silent');
 let server: { start(): Promise<void>; stop(): Promise<void> };
 
-afterEach(async () => { await server?.stop(); });
+afterEach(async () => {
+  await server?.stop();
+});
 
 describe('health server', () => {
   it('responds 200 on /healthz', async () => {
@@ -1247,7 +1435,10 @@ describe('health server', () => {
 import { createServer, type Server } from 'node:http';
 import type { Logger } from './logger.js';
 
-export function createHealthServer(port: number, logger: Logger): { start(): Promise<void>; stop(): Promise<void> } {
+export function createHealthServer(
+  port: number,
+  logger: Logger,
+): { start(): Promise<void>; stop(): Promise<void> } {
   let server: Server | undefined;
   return {
     start: () =>
@@ -1261,9 +1452,13 @@ export function createHealthServer(port: number, logger: Logger): { start(): Pro
             res.end();
           }
         });
-        server.listen(port, () => { logger.info({ port }, 'health server listening'); resolve(); });
+        server.listen(port, () => {
+          logger.info({ port }, 'health server listening');
+          resolve();
+        });
       }),
-    stop: () => new Promise<void>((resolve) => (server ? server.close(() => resolve()) : resolve())),
+    stop: () =>
+      new Promise<void>((resolve) => (server ? server.close(() => resolve()) : resolve())),
   };
 }
 ```
@@ -1277,10 +1472,12 @@ export function createHealthServer(port: number, logger: Logger): { start(): Pro
 ### Task 13: Pulse MCP server (`src/mcp/server.ts`)
 
 **Files:**
+
 - Create: `src/mcp/server.ts`
 - Create: `src/mcp/server.test.ts`
 
 **Interfaces:**
+
 - Consumes: `GeminiAgent`, `buildBriefing`, `@modelcontextprotocol/sdk` server APIs.
 - Produces: `export function registerPulseTools(server: ToolRegistrar, agent: Pick<GeminiAgent,'ask'>, topics: string[]): void` where `interface ToolRegistrar { tool(name: string, schema: unknown, handler: (args: any) => Promise<{ content: {type:'text';text:string}[] }>): void }`. Tools: `ask` (q→answer+sources), `search` (alias of ask focused on facts), `daily_briefing` (topics→digest). A `main()` (run when invoked directly) wires the real `McpServer` over stdio.
 
@@ -1294,7 +1491,9 @@ describe('registerPulseTools', () => {
   it('registers ask/search/daily_briefing and ask returns text', async () => {
     const handlers = new Map<string, (a: any) => Promise<any>>();
     const server = { tool: (name: string, _s: unknown, h: any) => handlers.set(name, h) };
-    const agent = { ask: vi.fn(async () => ({ text: 'answer', citations: [{ title: 'T', uri: 'https://u' }] })) };
+    const agent = {
+      ask: vi.fn(async () => ({ text: 'answer', citations: [{ title: 'T', uri: 'https://u' }] })),
+    };
     registerPulseTools(server, agent, ['ai']);
     expect([...handlers.keys()].sort()).toEqual(['ask', 'daily_briefing', 'search']);
     const out = await handlers.get('ask')!({ question: 'q' });
@@ -1317,7 +1516,9 @@ export interface ToolRegistrar {
   tool(
     name: string,
     schema: unknown,
-    handler: (args: Record<string, unknown>) => Promise<{ content: { type: 'text'; text: string }[] }>,
+    handler: (
+      args: Record<string, unknown>,
+    ) => Promise<{ content: { type: 'text'; text: string }[] }>,
   ): void;
 }
 
@@ -1328,7 +1529,11 @@ function render(res: AgentResponse): string {
   return `${res.text}${sources}`;
 }
 
-export function registerPulseTools(server: ToolRegistrar, agent: Pick<GeminiAgent, 'ask'>, topics: string[]): void {
+export function registerPulseTools(
+  server: ToolRegistrar,
+  agent: Pick<GeminiAgent, 'ask'>,
+  topics: string[],
+): void {
   const text = (s: string) => ({ content: [{ type: 'text' as const, text: s }] });
 
   server.tool('ask', { question: 'string' }, async (args) => {
@@ -1337,7 +1542,12 @@ export function registerPulseTools(server: ToolRegistrar, agent: Pick<GeminiAgen
   });
 
   server.tool('search', { query: 'string' }, async (args) => {
-    const res = await agent.ask([{ role: 'user', text: `Search the web and give a factual, cited summary for: ${String(args.query ?? '')}` }]);
+    const res = await agent.ask([
+      {
+        role: 'user',
+        text: `Search the web and give a factual, cited summary for: ${String(args.query ?? '')}`,
+      },
+    ]);
     return text(render(res));
   });
 
@@ -1371,14 +1581,23 @@ async function main(): Promise<void> {
 
   const reg: ToolRegistrar = {
     tool: (name, _schema, handler) =>
-      server.tool(name, name === 'daily_briefing' ? { topics: z.array(z.string()).optional() } : { question: z.string().optional(), query: z.string().optional() }, async (a: Record<string, unknown>) => handler(a) as never),
+      server.tool(
+        name,
+        name === 'daily_briefing'
+          ? { topics: z.array(z.string()).optional() }
+          : { question: z.string().optional(), query: z.string().optional() },
+        async (a: Record<string, unknown>) => handler(a) as never,
+      ),
   };
   registerPulseTools(reg, agent, cfg.briefing.topics);
   await server.connect(new StdioServerTransport());
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  main().catch((err) => { console.error(err); process.exit(1); });
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }
 ```
 
@@ -1393,9 +1612,11 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
 ### Task 14: Entrypoint wiring (`src/index.ts`)
 
 **Files:**
+
 - Create: `src/index.ts`
 
 **Interfaces:**
+
 - Consumes: everything above. No new exports (executable entrypoint).
 
 **Note for implementer:** Verified by typecheck + build + a manual smoke note (no unit test for the entrypoint). Load `.env`, build config, logger, MCP client (`connectAll`), agent, Slack app, scheduler, health server; resolve `botUserId` via `app.client.auth.test()`; register global error + graceful-shutdown handlers.
@@ -1449,7 +1670,9 @@ async function main(): Promise<void> {
   process.on('SIGTERM', () => void shutdown('SIGTERM'));
   process.on('SIGINT', () => void shutdown('SIGINT'));
   process.on('unhandledRejection', (reason) => logger.error({ reason }, 'unhandledRejection'));
-  process.on('uncaughtException', (err) => logger.error({ err: (err as Error).message }, 'uncaughtException'));
+  process.on('uncaughtException', (err) =>
+    logger.error({ err: (err as Error).message }, 'uncaughtException'),
+  );
 }
 
 main().catch((err) => {
@@ -1468,6 +1691,7 @@ main().catch((err) => {
 ### Task 15: Containerization (`Dockerfile`, `.dockerignore`)
 
 **Files:**
+
 - Create: `Dockerfile`
 - Create: `.dockerignore`
 
@@ -1514,7 +1738,7 @@ CMD ["node", "dist/index.js"]
 ```
 
 - [ ] **Step 3: Verify the image builds** — `docker build -t pulse-slack-agent .`
-Expected: build succeeds through all stages. (If Docker is unavailable locally, note it and rely on CI to verify in Task 16.)
+      Expected: build succeeds through all stages. (If Docker is unavailable locally, note it and rely on CI to verify in Task 16.)
 
 - [ ] **Step 4: Commit** — `git add Dockerfile .dockerignore && git commit -m "build: add multi-stage Dockerfile with non-root user and healthcheck"`
 
@@ -1523,6 +1747,7 @@ Expected: build succeeds through all stages. (If Docker is unavailable locally, 
 ### Task 16: CI workflow (`.github/workflows/ci.yml`)
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Create the workflow**
@@ -1556,7 +1781,7 @@ jobs:
       - run: docker build -t pulse-slack-agent .
 ```
 
-- [ ] **Step 2: Validate YAML locally** — confirm indentation parses (e.g. open in editor or `npx js-yaml .github/workflows/ci.yml` if available). 
+- [ ] **Step 2: Validate YAML locally** — confirm indentation parses (e.g. open in editor or `npx js-yaml .github/workflows/ci.yml` if available).
 
 - [ ] **Step 3: Commit** — `git add .github && git commit -m "ci: add GitHub Actions pipeline (typecheck, lint, test, build, docker)"`
 
@@ -1565,6 +1790,7 @@ jobs:
 ### Task 17: Documentation (`README.md`, `.env.example`, `slack-app-manifest.yaml`)
 
 **Files:**
+
 - Create: `.env.example`
 - Create: `slack-app-manifest.yaml`
 - Create: `README.md`
@@ -1606,7 +1832,7 @@ features:
   slash_commands:
     - command: /pulse
       description: Ask Pulse a question
-      usage_hint: "[your question]"
+      usage_hint: '[your question]'
       should_escape: false
 oauth_config:
   scopes:
@@ -1650,6 +1876,7 @@ settings:
 ## Self-Review
 
 **Spec coverage:**
+
 - On-demand Q&A + search → Tasks 5 (agent + grounding), 11 (handlers). ✓
 - Daily briefing → Tasks 9, 10. ✓
 - MCP client → Task 6; MCP server → Task 13. ✓

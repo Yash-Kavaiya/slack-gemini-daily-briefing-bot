@@ -21,9 +21,9 @@ enterprise-grade standard.
   slash command; Gemini answers grounded with live Google Search results and cites sources.
 - **Scheduled daily briefing:** A cron job posts a daily digest to a configured channel.
 - **MCP integration (both directions):**
-  - *Client:* the agent connects to configured external MCP servers and exposes their
+  - _Client:_ the agent connects to configured external MCP servers and exposes their
     tools to Gemini via function calling.
-  - *Server:* Pulse exposes its own MCP server (stdio) so other agents (e.g. Claude) can
+  - _Server:_ Pulse exposes its own MCP server (stdio) so other agents (e.g. Claude) can
     call `ask` / `search` / `daily_briefing`.
 - **Conversation memory:** follow-up questions in a Slack thread retain context.
 - **Enterprise quality:** strict TypeScript, structured logging, validated config,
@@ -82,19 +82,19 @@ Kit rendering. Modules are testable in isolation by mocking their single depende
 
 ## 5. Tech Stack
 
-| Concern | Choice |
-|---|---|
-| Language / runtime | TypeScript (strict, ESM, `NodeNext`), Node 22 |
-| Slack | `@slack/bolt` v4, Socket Mode |
-| LLM | `@google/genai` (Gemini 2.x), native Google Search grounding + function calling |
-| MCP | `@modelcontextprotocol/sdk` (client + stdio server) |
-| Scheduling | `node-cron` |
-| Config validation | `zod` |
-| Logging | `pino` (+ `pino-pretty` for dev), secret redaction |
-| Tests | `vitest` |
-| Lint / format | ESLint (flat config) + Prettier |
-| Container | multi-stage `Dockerfile`, non-root user, `.dockerignore` |
-| CI | GitHub Actions: typecheck -> lint -> test -> build -> docker build |
+| Concern            | Choice                                                                          |
+| ------------------ | ------------------------------------------------------------------------------- |
+| Language / runtime | TypeScript (strict, ESM, `NodeNext`), Node 22                                   |
+| Slack              | `@slack/bolt` v4, Socket Mode                                                   |
+| LLM                | `@google/genai` (Gemini 2.x), native Google Search grounding + function calling |
+| MCP                | `@modelcontextprotocol/sdk` (client + stdio server)                             |
+| Scheduling         | `node-cron`                                                                     |
+| Config validation  | `zod`                                                                           |
+| Logging            | `pino` (+ `pino-pretty` for dev), secret redaction                              |
+| Tests              | `vitest`                                                                        |
+| Lint / format      | ESLint (flat config) + Prettier                                                 |
+| Container          | multi-stage `Dockerfile`, non-root user, `.dockerignore`                        |
+| CI                 | GitHub Actions: typecheck -> lint -> test -> build -> docker build              |
 
 ## 6. Data Flow
 
@@ -111,19 +111,19 @@ configured topics (grounded with search) -> `format.ts` -> posted to the configu
 
 ## 7. Configuration (env, zod-validated)
 
-| Var | Required | Default | Purpose |
-|---|---|---|---|
-| `SLACK_BOT_TOKEN` | yes | — | `xoxb-…` bot token |
-| `SLACK_APP_TOKEN` | yes | — | `xapp-…` Socket Mode token |
-| `SLACK_SIGNING_SECRET` | yes | — | request signing |
-| `GEMINI_API_KEY` | yes | — | Google Gen AI key |
-| `GEMINI_MODEL` | no | `gemini-2.0-flash` | model id |
-| `BRIEFING_CHANNEL` | no | — | channel id for daily briefing (briefing disabled if unset) |
-| `BRIEFING_CRON` | no | `0 9 * * *` | cron schedule (server local time) |
-| `BRIEFING_TOPICS` | no | sensible default list | comma-separated topics |
-| `MCP_SERVERS` | no | — | JSON describing external MCP servers to connect as a client |
-| `LOG_LEVEL` | no | `info` | pino level |
-| `HEALTH_PORT` | no | `3000` | health endpoint port |
+| Var                    | Required | Default               | Purpose                                                     |
+| ---------------------- | -------- | --------------------- | ----------------------------------------------------------- |
+| `SLACK_BOT_TOKEN`      | yes      | —                     | `xoxb-…` bot token                                          |
+| `SLACK_APP_TOKEN`      | yes      | —                     | `xapp-…` Socket Mode token                                  |
+| `SLACK_SIGNING_SECRET` | yes      | —                     | request signing                                             |
+| `GEMINI_API_KEY`       | yes      | —                     | Google Gen AI key                                           |
+| `GEMINI_MODEL`         | no       | `gemini-2.0-flash`    | model id                                                    |
+| `BRIEFING_CHANNEL`     | no       | —                     | channel id for daily briefing (briefing disabled if unset)  |
+| `BRIEFING_CRON`        | no       | `0 9 * * *`           | cron schedule (server local time)                           |
+| `BRIEFING_TOPICS`      | no       | sensible default list | comma-separated topics                                      |
+| `MCP_SERVERS`          | no       | —                     | JSON describing external MCP servers to connect as a client |
+| `LOG_LEVEL`            | no       | `info`                | pino level                                                  |
+| `HEALTH_PORT`          | no       | `3000`                | health endpoint port                                        |
 
 Invalid/missing required config fails fast at startup with a clear message.
 
