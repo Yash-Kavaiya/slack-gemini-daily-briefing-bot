@@ -1,0 +1,516 @@
+# Instincts generated from https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+# Generated: 2026-06-22T20:23:48.779Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: slack-gemini-daily-briefing-bot-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: docs, feat, chore
+
+## Evidence
+
+- 6 commits analyzed
+- Detected conventional commit pattern
+- Examples: docs: add enterprise rebuild design spec, chore: set up TypeScript/ESM toolchain, lint, format, vitest, MIT license
+
+---
+id: slack-gemini-daily-briefing-bot-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Commit Length
+
+## Action
+
+Write moderate-length commit messages (~66 characters)
+
+## Evidence
+
+- Average commit message length: 66 chars
+- Based on 6 commits
+
+---
+id: slack-gemini-daily-briefing-bot-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: slack-gemini-daily-briefing-bot-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: slack-gemini-daily-briefing-bot-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: slack-gemini-daily-briefing-bot-test-colocate
+trigger: "when writing tests"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Test Colocate
+
+## Action
+
+Place test file next to the source file (e.g., Button.test.tsx next to Button.tsx)
+
+## Evidence
+
+- Colocated test pattern detected
+- Tests live alongside source files
+
+---
+id: slack-gemini-daily-briefing-bot-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Test Framework
+
+## Action
+
+Use vitest as the test framework
+
+## Evidence
+
+- Test framework detected: vitest
+- File pattern: *.test.ts
+
+---
+id: slack-gemini-daily-briefing-bot-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: slack-gemini-daily-briefing-bot-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Test Types
+
+## Action
+
+Write unit, integration tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, integration
+- Coverage config: no
+
+---
+id: slack-gemini-daily-briefing-bot-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~25x per month
+- Files: src/agent/*, src/*, src/handlers/*
+
+---
+id: slack-gemini-daily-briefing-bot-workflow-feature-development-spec-plan-implementation-tests
+trigger: "when doing feature development spec plan implementation tests"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Workflow Feature Development Spec Plan Implementation Tests
+
+## Action
+
+Follow the feature-development-spec-plan-implementation-tests workflow:
+1. Write a design spec in docs/superpowers/specs/
+2. Write an implementation plan in docs/superpowers/plans/
+3. Implement the feature in src/ (code and types)
+4. Write unit tests for new code in corresponding *.test.ts files
+5. Update documentation/spec/plan as needed
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: docs/superpowers/specs/*.md, docs/superpowers/plans/*.md, src/**/*.ts
+
+---
+id: slack-gemini-daily-briefing-bot-workflow-project-setup-or-infra-upgrade
+trigger: "when doing project setup or infra upgrade"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Workflow Project Setup Or Infra Upgrade
+
+## Action
+
+Follow the project-setup-or-infra-upgrade workflow:
+1. Add or update configuration files for TypeScript, linting, formatting, and testing
+2. Add or update Dockerfile and .dockerignore for containerization
+3. Add or update GitHub Actions workflow for CI
+4. Add or update README and example environment files for onboarding
+5. Add or update manifest files for external integrations (e.g., Slack)
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: package.json, tsconfig.json, eslint.config.js
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-file-naming-camelCase
+trigger: "When creating or renaming a source file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct File Naming CamelCase
+
+## Action
+
+Use camelCase for file names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.files
+- src/agent, src/briefing, src/handlers
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-function-naming-camelCase
+trigger: "When defining a function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Function Naming CamelCase
+
+## Action
+
+Use camelCase for function names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.functions
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-class-naming-pascalCase
+trigger: "When defining a class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Class Naming PascalCase
+
+## Action
+
+Use PascalCase for class names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.classes
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-constant-naming-screaming-snake-case
+trigger: "When defining a constant"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Constant Naming Screaming Snake Case
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions.constants
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-import-style-relative
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Import Style Relative
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern in codeStyle.importStyle
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-export-style-named
+trigger: "When exporting functions, classes, or constants"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Export Style Named
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-test-file-pattern
+trigger: "When adding a test file"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Test File Pattern
+
+## Action
+
+Name the file with a .test.ts suffix and colocate it with the code under test
+
+## Evidence
+
+- Pattern in testing.filePattern
+- testLocation: colocated
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-test-framework-vitest
+trigger: "When writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Test Framework Vitest
+
+## Action
+
+Use the Vitest framework
+
+## Evidence
+
+- Pattern in testing.framework
+- vitest.config.ts in repo
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-test-type-unit-integration
+trigger: "When designing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Test Type Unit Integration
+
+## Action
+
+Write both unit and integration tests as appropriate
+
+## Evidence
+
+- Pattern in testing.testTypes
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-git-commit-conventional
+trigger: "When writing a commit message"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Git Commit Conventional
+
+## Action
+
+Use Conventional Commits format with prefixes like feat, docs, chore
+
+## Evidence
+
+- Pattern in commits.type: conventional
+- Examples: 'docs: add enterprise rebuild design spec', 'feat: add core modules'
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-git-commit-length
+trigger: "When composing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Git Commit Length
+
+## Action
+
+Keep commit messages concise, around 66 characters on average
+
+## Evidence
+
+- Pattern in commits.averageLength
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-workflow-feature-spec-plan-impl-test
+trigger: "When adding a significant new feature or module"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Workflow Feature Spec Plan Impl Test
+
+## Action
+
+First write a design spec (docs/superpowers/specs/), then an implementation plan (docs/superpowers/plans/), implement code (src/), write tests (*.test.ts), and update docs as needed
+
+## Evidence
+
+- Workflow: feature-development-spec-plan-implementation-tests
+- Commit sequences and file patterns in workflow definition
+
+---
+id: slack-gemini-daily-briefing-bot-instinct-workflow-project-setup-infra-upgrade
+trigger: "When initializing a new project or upgrading infrastructure/toolchain"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: Yash-Kavaiya/slack-gemini-daily-briefing-bot
+---
+
+# Slack Gemini Daily Briefing Bot Instinct Workflow Project Setup Infra Upgrade
+
+## Action
+
+Add or update config files (TypeScript, lint, format, test), Dockerfile, CI workflows, onboarding docs, and integration manifests
+
+## Evidence
+
+- Workflow: project-setup-or-infra-upgrade
+- Commit sequences and file patterns in workflow definition
+
