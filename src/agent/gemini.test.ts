@@ -67,3 +67,46 @@ describe('GeminiAgent.ask', () => {
     expect(res.text).toMatch(/couldn.t complete|unable/i);
   });
 });
+
+describe('GeminiAgent resilience', () => {
+  const ok: GeminiResult = { text: 'recovered', functionCalls: [], candidates: [] };
+
+  it('retries a transient failure with backoff and then succeeds', async () => {
+    let calls = 0;
+    const client: GeminiClient = {
+      generateContent: vi.fn(async () => {
+        calls++;
+        if (calls < 3) throw new Error('503 transient');
+        return ok;
+      }),
+    };
+    const sleep = vi.fn(async () => {});
+    const agent = new GeminiAgent(cfg, log, { client, sleep, maxRetries: 3, baseDelayMs: 10 });
+    const res = await agent.ask([{ role: 'user', text: 'hi' }]);
+    expect(res.text).toBe('recovered');
+    expect(calls).toBe(3);
+    // Backoff applied before each retry: 10ms then 20ms.
+    expect(sleep.mock.calls.map((c) => c[0])).toEqual([10, 20]);
+  });
+
+  it('gives up after exhausting retries and rejects', async () => {
+    const client: GeminiClient = {
+      generateContent: vi.fn(async () => {
+        throw new Error('still failing');
+      }),
+    };
+    const sleep = vi.fn(async () => {});
+    const agent = new GeminiAgent(cfg, log, { client, sleep, maxRetries: 2, baseDelayMs: 1 });
+    await expect(agent.ask([{ role: 'user', text: 'hi' }])).rejects.toThrow(/still failing/);
+    expect((client.generateContent as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(3);
+  });
+
+  it('times out a hanging request', async () => {
+    const client: GeminiClient = {
+      generateContent: () => new Promise<GeminiResult>(() => {}), // never resolves
+    };
+    const sleep = vi.fn(async () => {});
+    const agent = new GeminiAgent(cfg, log, { client, sleep, maxRetries: 0, timeoutMs: 15 });
+    await expect(agent.ask([{ role: 'user', text: 'hi' }])).rejects.toThrow(/timed out/);
+  });
+});

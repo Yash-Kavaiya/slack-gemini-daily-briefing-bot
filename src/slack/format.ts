@@ -2,8 +2,30 @@ import type { AgentResponse, Citation } from '../agent/types.js';
 
 const MAX_SECTION = 2900;
 
-function truncate(s: string): string {
-  return s.length <= MAX_SECTION ? s : `${s.slice(0, MAX_SECTION - 1)}…`;
+/**
+ * Splits text into chunks no larger than `size`, preferring to break at a
+ * newline or space boundary so words/lines aren't cut mid-token.
+ */
+export function chunkText(s: string, size = MAX_SECTION): string[] {
+  if (s.length <= size) return [s];
+  const chunks: string[] = [];
+  let rest = s;
+  while (rest.length > size) {
+    let cut = rest.lastIndexOf('\n', size);
+    if (cut < size * 0.5) cut = rest.lastIndexOf(' ', size);
+    if (cut < size * 0.5) cut = size;
+    chunks.push(rest.slice(0, cut).trimEnd());
+    rest = rest.slice(cut).trimStart();
+  }
+  if (rest) chunks.push(rest);
+  return chunks;
+}
+
+function sectionBlocks(text: string): unknown[] {
+  return chunkText(text).map((part) => ({
+    type: 'section',
+    text: { type: 'mrkdwn', text: part },
+  }));
 }
 
 function sourcesBlock(citations: Citation[]): unknown[] {
@@ -18,10 +40,7 @@ function sourcesBlock(citations: Citation[]): unknown[] {
 export function formatAnswer(res: AgentResponse): { text: string; blocks: unknown[] } {
   return {
     text: res.text,
-    blocks: [
-      { type: 'section', text: { type: 'mrkdwn', text: truncate(res.text) } },
-      ...sourcesBlock(res.citations),
-    ],
+    blocks: [...sectionBlocks(res.text), ...sourcesBlock(res.citations)],
   };
 }
 
@@ -34,7 +53,7 @@ export function formatBriefing(
     blocks: [
       { type: 'header', text: { type: 'plain_text', text: '📈 Daily Briefing' } },
       { type: 'context', elements: [{ type: 'mrkdwn', text: `Topics: ${topics.join(', ')}` }] },
-      { type: 'section', text: { type: 'mrkdwn', text: truncate(res.text) } },
+      ...sectionBlocks(res.text),
       ...sourcesBlock(res.citations),
     ],
   };
