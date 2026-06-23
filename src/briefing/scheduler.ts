@@ -1,4 +1,4 @@
-import cron from 'node-cron';
+import cron, { type ScheduledTask } from 'node-cron';
 import type { GeminiAgent } from '../agent/gemini.js';
 import type { Logger } from '../logger.js';
 import { buildBriefing } from './briefing.js';
@@ -19,7 +19,7 @@ export interface SchedulerOptions {
 }
 
 export class BriefingScheduler {
-  private task?: cron.ScheduledTask;
+  private task?: ScheduledTask;
 
   constructor(private readonly opts: SchedulerOptions) {}
 
