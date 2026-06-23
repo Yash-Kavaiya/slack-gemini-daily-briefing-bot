@@ -38,11 +38,23 @@ export function createRealClient(apiKey: string): GeminiClient {
 }
 
 export interface GeminiDeps {
-  client: GeminiClient;
+  client?: GeminiClient;
+  /** Injectable delay (defaults to real setTimeout); overridden in tests to avoid waiting. */
+  sleep?: (ms: number) => Promise<void>;
+  /** Max retry attempts after the first try on a transient failure. Default 3. */
+  maxRetries?: number;
+  /** Base backoff delay in ms; grows exponentially per attempt. Default 500. */
+  baseDelayMs?: number;
+  /** Per-attempt timeout in ms; 0 disables. Default 30000. */
+  timeoutMs?: number;
 }
 
 export class GeminiAgent {
   private readonly client: GeminiClient;
+  private readonly sleep: (ms: number) => Promise<void>;
+  private readonly maxRetries: number;
+  private readonly baseDelayMs: number;
+  private readonly timeoutMs: number;
 
   constructor(
     private readonly cfg: { apiKey: string; model: string },
@@ -50,6 +62,52 @@ export class GeminiAgent {
     deps?: GeminiDeps,
   ) {
     this.client = deps?.client ?? createRealClient(cfg.apiKey);
+    this.sleep = deps?.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
+    this.maxRetries = deps?.maxRetries ?? 3;
+    this.baseDelayMs = deps?.baseDelayMs ?? 500;
+    this.timeoutMs = deps?.timeoutMs ?? 30000;
+  }
+
+  /** Calls the Gemini client with a per-attempt timeout and exponential-backoff retry. */
+  private async generateWithResilience(req: {
+    model: string;
+    contents: unknown[];
+    config: Record<string, unknown>;
+  }): Promise<GeminiResult> {
+    let lastErr: unknown;
+    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+      try {
+        return await this.withTimeout(this.client.generateContent(req));
+      } catch (err) {
+        lastErr = err;
+        this.logger.warn(
+          { attempt, maxRetries: this.maxRetries, err: (err as Error).message },
+          'Gemini call failed',
+        );
+        if (attempt < this.maxRetries) await this.sleep(this.baseDelayMs * 2 ** attempt);
+      }
+    }
+    throw lastErr;
+  }
+
+  private withTimeout(p: Promise<GeminiResult>): Promise<GeminiResult> {
+    if (!this.timeoutMs) return p;
+    return new Promise<GeminiResult>((resolve, reject) => {
+      const timer = setTimeout(
+        () => reject(new Error(`Gemini request timed out after ${this.timeoutMs}ms`)),
+        this.timeoutMs,
+      );
+      p.then(
+        (v) => {
+          clearTimeout(timer);
+          resolve(v);
+        },
+        (e) => {
+          clearTimeout(timer);
+          reject(e);
+        },
+      );
+    });
   }
 
   async ask(history: ChatMessage[], tools: AgentTool[] = []): Promise<AgentResponse> {
@@ -69,7 +127,7 @@ export class GeminiAgent {
 
     const citations: Citation[] = [];
     for (let i = 0; i < MAX_TOOL_ITERATIONS; i++) {
-      const result = await this.client.generateContent({
+      const result = await this.generateWithResilience({
         model: this.cfg.model,
         contents,
         config: { tools: toolConfig },
